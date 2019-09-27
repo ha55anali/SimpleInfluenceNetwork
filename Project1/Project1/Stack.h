@@ -15,6 +15,9 @@ public:
 
 	bool isFull();
 	bool isEmpty();
+	int getSize() { return s.getSize(); };
+
+	void print();
 private:
 	sList<T> s;
 };
@@ -58,4 +61,10 @@ bool Stack<T>::isEmpty()
 {
 	if (s.getSize()==0) return 1;
 	return 0;
+}
+
+template<class T>
+void Stack<T>::print()
+{
+	s.print();
 }
