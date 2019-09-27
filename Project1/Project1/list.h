@@ -206,7 +206,7 @@ void sList<T>::print() const{
 	else{
 		node<T>* temp=head->next;
 		while (temp!=tail){
-			std::cout<<temp->data<<"	";
+			std::cout<<temp->data<<" ";
 			temp=temp->next;
 		}
 	}
