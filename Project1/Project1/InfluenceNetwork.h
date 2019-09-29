@@ -169,7 +169,8 @@ void InfluenceNetwork::checkFile(std::string path){
 	int LineCount=0;
 	while (!file.eof()) {
 		getline(file, tempStr);
-		++LineCount;
+		if (!tempStr.empty())
+			++LineCount;
 	}
 
 	if (UserCount != LineCount) {
