@@ -4,6 +4,7 @@
 
 #include <string>
 #include <fstream>
+#include <exception>
 
 class InfluenceNetwork {
 public:
@@ -18,6 +19,8 @@ private:
 	sList<int>* network;
 	int UserSize;
 
+	void checkNetworkConsistency();
+	void checkFile(std::string path);
 	void readUsers(std::ifstream& file);
 	void addUserToNetwork(std::string lot, int User);
 
@@ -25,6 +28,7 @@ private:
 	Stack<int>* CalInfluence();
 
 	int GetMaxInfluence(Stack<int>*);
+	int strToInt(std::string);
 };
 
 InfluenceNetwork::InfluenceNetwork(){
@@ -39,6 +43,8 @@ InfluenceNetwork::~InfluenceNetwork(){
 
 
 void InfluenceNetwork::Input(std::string path){
+	checkFile(path);
+
 	using namespace std;
 	ifstream file;
 	file.open(path);
@@ -47,12 +53,27 @@ void InfluenceNetwork::Input(std::string path){
 	int UserCount = 0;
 	std::string tempStr;
 	getline(file, tempStr);
-	UserCount = stoi(tempStr);
+	try {
+		UserCount = strToInt(tempStr);
+	}
+	catch (invalid_argument & e) {
+		file.close();
+		throw e;
+	}
 
 	network = new sList<int>[UserCount+1];
 	UserSize = UserCount;
 
-	readUsers(file);
+	try{
+		readUsers(file);
+	}
+	catch (invalid_argument& e) {
+		file.close();
+		throw e;
+	}
+	file.close();
+
+	checkNetworkConsistency();
 }
 
 void InfluenceNetwork::Calculate_Influence()
@@ -94,6 +115,52 @@ void InfluenceNetwork::print()
 		std::cout << std::endl;
 	}
 }
+
+//checks if network is consistent
+void InfluenceNetwork::checkNetworkConsistency(){
+	for (int c=1;c<UserSize+1;++c){
+		if (c!=*network[c].begin())
+			throw std::exception("Inconsistent User IDs");
+	}
+
+	for (int c=1;c<UserSize+1;++c){
+		for (sList<int>::iterator it=network[c].begin();it!=network[c].end();++it){
+			if (*it>UserSize || *it<1)
+				throw std::exception("inconsistent friends");
+		}
+	}
+}
+
+//checks if file can be opened and number of users is consistent
+void InfluenceNetwork::checkFile(std::string path){
+	using namespace std;
+	ifstream file;
+	file.open(path);
+
+	if (file.fail()) {
+		file.close();
+		throw invalid_argument("File cannot be opened");
+	}
+
+	int UserCount = 0;
+	std::string tempStr;
+	getline(file, tempStr);
+	UserCount = strToInt(tempStr);
+
+	int LineCount=0;
+	while (!file.eof()) {
+		getline(file, tempStr);
+		++LineCount;
+	}
+
+	if (UserCount != LineCount) {
+		file.close();
+		throw invalid_argument("File is corrupt");
+	}
+
+	file.close();
+}
+
  void InfluenceNetwork::readUsers(std::ifstream& file)
 {
 	 std::string tempStr;
@@ -121,7 +188,7 @@ void InfluenceNetwork::print()
 	 //get user id
 	 pos = lot.find(delimiter);
 	 int temp;
-	 temp = stoi(lot.substr(0, pos));
+	 temp =strToInt(lot.substr(0, pos));
 	 lot.erase(0, pos + 1);
 	 network[User].insertAtEnd(temp);
 
@@ -129,10 +196,12 @@ void InfluenceNetwork::print()
 	 delimiter = ",";
 	 while ((pos = lot.find(delimiter)) != std::string::npos) {
 		 tempStr = lot.substr(0, pos);
-		 temp = stoi(tempStr);
+		 temp =strToInt(tempStr);
 		 lot.erase(0, pos + delimiter.length());
 		 network[User].insertAtEnd(temp);
 	 }
+	 temp = strToInt(lot);
+	 network[User].insertAtEnd(temp);
  }
 
  void InfluenceNetwork::RecAdd(int const User, Stack<int>& s, bool* arr, int size)
@@ -164,4 +233,14 @@ int InfluenceNetwork::GetMaxInfluence(Stack<int>* s){
 	}
 
 	return maxUser;
+}
+
+ int InfluenceNetwork::strToInt(std::string str)
+{
+	 try {
+		 return stoi(str);
+	 }
+	 catch (std::invalid_argument & e) {
+		 throw std::invalid_argument("Input file is corrupt. STOI exception");
+	 }
 }
