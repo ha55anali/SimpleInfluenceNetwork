@@ -11,23 +11,35 @@ public:
 	InfluenceNetwork();
 	~InfluenceNetwork();
 
+	//opens file path. Throws exception if file corrupt
 	void Input(std::string path);
+	//prints details of the influence of the network
 	void Calculate_Influence();
 
+	//prints the network
 	void print();
 private:
 	sList<int>* network;
 	int UserSize;
 
+	//checks consistency of network. Throws exception if not
 	void checkNetworkConsistency();
+	//checks if file on path is consistent. Throws exception if not
 	void checkFile(std::string path);
+
+	//reads users from passed ifstream
 	void readUsers(std::ifstream& file);
+	//adds user data stored in lot to network
 	void addUserToNetwork(std::string lot, int User);
 
+	//stores the influence of User in passed stack
 	void RecAdd(int const User, Stack<int>& s, bool* arr, int size);
+	//returns an array of stack with the influence data of each user
 	Stack<int>* CalInfluence();
 
+	//returns ID of the user with max influence
 	int GetMaxInfluence(Stack<int>*);
+	//returns stoi of string. Throws exception if string not valid	
 	int strToInt(std::string);
 };
 
@@ -43,6 +55,7 @@ InfluenceNetwork::~InfluenceNetwork(){
 
 
 void InfluenceNetwork::Input(std::string path){
+	//checks if file consistent
 	checkFile(path);
 
 	using namespace std;
@@ -64,6 +77,7 @@ void InfluenceNetwork::Input(std::string path){
 	network = new sList<int>[UserCount+1];
 	UserSize = UserCount;
 
+	//stores data of user to network
 	try{
 		readUsers(file);
 	}
@@ -73,11 +87,13 @@ void InfluenceNetwork::Input(std::string path){
 	}
 	file.close();
 
+	//checks if network is consistent
 	checkNetworkConsistency();
 }
 
 void InfluenceNetwork::Calculate_Influence()
 {
+	//gets a stack with influence data of all the users
 	Stack<int>* stack = CalInfluence();
 
 	for (int c = 1; c < UserSize+1; ++c) {
@@ -118,11 +134,13 @@ void InfluenceNetwork::print()
 
 //checks if network is consistent
 void InfluenceNetwork::checkNetworkConsistency(){
+	//checks if all user IDs increase by 1
 	for (int c=1;c<UserSize+1;++c){
 		if (c!=*network[c].begin())
 			throw std::exception("Inconsistent User IDs");
 	}
 
+	//checks no friend referenced which does not exist in the network
 	for (int c=1;c<UserSize+1;++c){
 		for (sList<int>::iterator it=network[c].begin();it!=network[c].end();++it){
 			if (*it>UserSize || *it<1)
@@ -142,6 +160,7 @@ void InfluenceNetwork::checkFile(std::string path){
 		throw invalid_argument("File cannot be opened");
 	}
 
+	//checks if user number in file==users in file
 	int UserCount = 0;
 	std::string tempStr;
 	getline(file, tempStr);
@@ -211,11 +230,13 @@ void InfluenceNetwork::checkFile(std::string path){
 		 return;
 	 }
 
-
+	//adds each friend to the stack
+	 //recursively checks the friends of the user
 	 for (sList<int>::iterator it = ++network[User].begin(); it != network[User].end(); ++it) {
 		 if (arr[*it] == 0) {
 			 s.push(*it);
 			 arr[*it] = 1;
+			 //checks friend of the current friend(it)
 			 RecAdd(*it, s, arr, size);
 		 }
 	 }
