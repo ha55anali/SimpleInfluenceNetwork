@@ -219,8 +219,10 @@ void InfluenceNetwork::checkFile(std::string path){
 		 lot.erase(0, pos + delimiter.length());
 		 network[User].insertAtEnd(temp);
 	 }
-	 temp = strToInt(lot);
-	 network[User].insertAtEnd(temp);
+	 if (!lot.empty()) {
+		 temp = strToInt(lot);
+		 network[User].insertAtEnd(temp);
+	 }
  }
 
  void InfluenceNetwork::RecAdd(int const User, Stack<int>& s, bool* arr, int size)
