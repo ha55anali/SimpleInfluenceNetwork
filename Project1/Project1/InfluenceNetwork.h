@@ -23,6 +23,8 @@ private:
 
 	void RecAdd(int const User, Stack<int>& s, bool* arr, int size);
 	Stack<int>* CalInfluence();
+
+	int GetMaxInfluence(Stack<int>*);
 };
 
 InfluenceNetwork::InfluenceNetwork(){
@@ -62,6 +64,9 @@ void InfluenceNetwork::Calculate_Influence()
 		stack[c].print();
 		std::cout << std::endl;
 	}
+
+	std::cout<<"User with maximum influence: "<<GetMaxInfluence(stack);
+	delete[] stack;
 }
 
 Stack<int>* InfluenceNetwork::CalInfluence()
@@ -146,3 +151,17 @@ void InfluenceNetwork::print()
 		 }
 	 }
  }
+
+int InfluenceNetwork::GetMaxInfluence(Stack<int>* s){
+	int maxVal=0;
+	int maxUser=0;
+
+	for (int c=0;c<UserSize;++c){
+		if (s[c].getSize()>maxVal){
+			maxVal=s[c].getSize();
+			maxUser=c;
+		}
+	}
+
+	return maxUser;
+}
