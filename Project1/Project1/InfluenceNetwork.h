@@ -225,7 +225,7 @@ int InfluenceNetwork::GetMaxInfluence(Stack<int>* s){
 	int maxVal=0;
 	int maxUser=0;
 
-	for (int c=0;c<UserSize;++c){
+	for (int c=1;c<UserSize+1;++c){
 		if (s[c].getSize()>maxVal){
 			maxVal=s[c].getSize();
 			maxUser=c;
